@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculadora Notarial — Ecuador</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:      #0f1923;
+    --ink2:     #3a4a5a;
+    --ink3:     #7a8a9a;
+    --gold:     #b8860b;
+    --gold-lt:  #f5ecd0;
+    --gold-mid: #d4a843;
+    --surface:  #faf8f4;
+    --card:     #ffffff;
+    --border:   #e8e0d0;
+    --red:      #c0392b;
+    --green:    #1a6e3c;
+    --blue:     #1a3a5c;
+    --shadow:   0 2px 16px rgba(15,25,35,0.08);
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--surface);
+    color: var(--ink);
+    min-height: 100vh;
+    padding: 0 0 60px;
+  }
+
+  /* ── HEADER ─────────────────────────────── */
+  .header {
+    background: var(--ink);
+    padding: 32px 24px 28px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 60px,
+      rgba(184,134,11,0.06) 60px,
+      rgba(184,134,11,0.06) 61px
+    );
+  }
+  .header-badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--gold-mid);
+    border: 1px solid rgba(212,168,67,0.4);
+    padding: 4px 14px;
+    border-radius: 2px;
+    margin-bottom: 12px;
+  }
+  .header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 500;
+    color: #fff;
+    letter-spacing: -0.3px;
+    margin-bottom: 6px;
+  }
+  .header p {
+    font-size: 13px;
+    color: rgba(255,255,255,0.5);
+    font-weight: 300;
+  }
+
+  /* ── TABS ────────────────────────────────── */
+  .tabs-wrap {
+    background: var(--ink);
+    padding: 0 24px;
+    display: flex;
+    gap: 4px;
+    overflow-x: auto;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .tab {
+    flex-shrink: 0;
+    padding: 14px 20px 13px;
+    font-size: 13px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.45);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all .2s;
+    white-space: nowrap;
+    background: none;
+    border-left: none; border-right: none; border-top: none;
+  }
+  .tab:hover { color: rgba(255,255,255,0.75); }
+  .tab.active {
+    color: var(--gold-mid);
+    border-bottom-color: var(--gold-mid);
+  }
+
+  /* ── MAIN LAYOUT ─────────────────────────── */
+  .main { max-width: 680px; margin: 0 auto; padding: 28px 16px 0; }
+
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* ── CARD ────────────────────────────────── */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 24px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow);
+  }
+  .card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--ink);
+    margin-bottom: 18px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-title span { font-size: 16px; }
+
+  /* ── FORM ELEMENTS ───────────────────────── */
+  .field { margin-bottom: 16px; }
+  .field:last-child { margin-bottom: 0; }
+
+  label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--ink2);
+    margin-bottom: 6px;
+  }
+
+  input[type="number"],
+  input[type="date"],
+  input[type="text"] {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    font-size: 15px;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--ink);
+    background: #fff;
+    transition: border-color .2s;
+    -moz-appearance: textfield;
+  }
+  input::-webkit-outer-spin-button,
+  input::-webkit-inner-spin-button { -webkit-appearance: none; }
+  input:focus { outline: none; border-color: var(--gold); }
+  input::placeholder { color: var(--ink3); }
+
+  .field-hint {
+    font-size: 11px;
+    color: var(--ink3);
+    margin-top: 4px;
+  }
+
+  /* ── TOGGLE CHECK ────────────────────────── */
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 14px;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    margin-bottom: 16px;
+    cursor: pointer;
+    transition: border-color .2s;
+  }
+  .toggle-row:hover { border-color: var(--gold); }
+  .toggle-row.active { border-color: var(--gold); background: var(--gold-lt); }
+
+  .toggle-label { font-size: 13px; font-weight: 500; color: var(--ink2); }
+  .toggle-sub   { font-size: 11px; color: var(--ink3); margin-top: 2px; }
+
+  .toggle-switch {
+    width: 38px; height: 22px;
+    background: #ddd;
+    border-radius: 11px;
+    position: relative;
+    transition: background .2s;
+    flex-shrink: 0;
+  }
+  .toggle-switch::after {
+    content: '';
+    position: absolute;
+    width: 16px; height: 16px;
+    background: #fff;
+    border-radius: 50%;
+    top: 3px; left: 3px;
+    transition: transform .2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  }
+  .toggle-row.active .toggle-switch { background: var(--gold); }
+  .toggle-row.active .toggle-switch::after { transform: translateX(16px); }
+
+  /* ── BUTTON ──────────────────────────────── */
+  .btn-calc {
+    width: 100%;
+    padding: 13px;
+    background: var(--ink);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: 'DM Sans', sans-serif;
+    letter-spacing: 0.3px;
+    cursor: pointer;
+    transition: background .2s, transform .1s;
+  }
+  .btn-calc:hover { background: #1a2d40; }
+  .btn-calc:active { transform: scale(0.99); }
+
+  .btn-registro {
+    width: 100%;
+    padding: 11px;
+    background: transparent;
+    color: var(--gold);
+    border: 1.5px solid var(--gold);
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: all .2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+  .btn-registro:hover { background: var(--gold-lt); }
+
+  .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+  .btn-clear {
+    padding: 13px;
+    background: transparent;
+    color: var(--ink3);
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    transition: all .2s;
+  }
+  .btn-clear:hover { border-color: var(--ink3); color: var(--ink2); }
+
+  /* ── RESULTS ─────────────────────────────── */
+  .result-box {
+    margin-top: 20px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    display: none;
+    animation: fadeUp .25s ease;
+  }
+  .result-box.show { display: block; }
+
+  @keyframes fadeUp {
+    from { opacity:0; transform:translateY(6px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+
+  .result-head {
+    background: var(--ink);
+    padding: 12px 18px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--gold-mid);
+  }
+
+  .result-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 11px 18px;
+    border-bottom: 1px solid var(--border);
+    font-size: 13.5px;
+  }
+  .result-row:last-child { border-bottom: none; }
+  .result-row.subtotal { background: #f8f5ef; }
+  .result-row .r-label { color: var(--ink2); }
+  .result-row .r-val   { font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .result-row.zero .r-val { color: var(--green); }
+  .result-row.negative .r-val { color: var(--red); }
+
+  .result-seccion {
+    padding: 8px 18px 6px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--gold);
+    background: var(--gold-lt);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .result-total {
+    background: var(--ink);
+    padding: 16px 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .result-total .rt-label {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.6);
+  }
+  .result-total .rt-val {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    color: var(--gold-mid);
+  }
+
+  .anos-display {
+    display: inline-block;
+    background: var(--gold-lt);
+    color: var(--gold);
+    border: 1px solid var(--gold-mid);
+    border-radius: 4px;
+    padding: 3px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+
+  /* ── ERROR ───────────────────────────────── */
+  .error-msg {
+    background: #fff0f0;
+    border: 1px solid #f5c0c0;
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: var(--red);
+    margin-top: 10px;
+    display: none;
+  }
+  .error-msg.show { display: block; }
+
+  .pc-tipo {
+    padding: 9px 12px;
+    border: 1.5px solid var(--border);
+    background: white;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--ink3);
+    cursor: pointer;
+    transition: all .2s;
+  }
+  .pc-tipo:hover { border-color: var(--gold); color: var(--ink2); }
+  .pc-tipo.active { background: var(--ink); color: white; border-color: var(--ink); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-badge">Notaría · Ecuador</div>
+  <h1>Calculadora de Aranceles</h1>
+  <p>Transferencia · Donación · Promesa / Cesión · Hipoteca</p>
+</div>
+
+<div class="tabs-wrap">
+  <button class="tab active" onclick="cambiarTab(0)">Transferencia</button>
+  <button class="tab" onclick="cambiarTab(1)">Donación</button>
+  <button class="tab" onclick="cambiarTab(2)">Promesa / Cesión</button>
+  <button class="tab" onclick="cambiarTab(3)">Hipoteca</button>
+</div>
+
+<div class="main">
+
+  <!-- ═══ TAB 0: TRANSFERENCIA ═══ -->
+  <div class="panel active" id="panel-0">
+    <div class="card">
+      <div class="card-title"><span>🏠</span> Transferencia de Dominio</div>
+
+      <div class="field">
+        <label>Valor de Venta ($)</label>
+        <input type="number" id="t-venta" placeholder="0.00" step="0.01">
+      </div>
+      <div class="field">
+        <label>Precio de Compra Original ($)</label>
+        <input type="number" id="t-compra" placeholder="0.00" step="0.01">
+      </div>
+      <div class="field">
+        <label>Fecha de Adquisición</label>
+        <input type="date" id="t-fecha">
+        <div class="field-hint" id="t-anos-hint"></div>
+      </div>
+
+      <div class="field">
+        <label>Valor Registro de la Propiedad ($) <span style="font-weight:300;text-transform:none;font-size:11px;color:var(--ink3)">— opcional</span></label>
+        <input type="number" id="t-registro" placeholder="0.00" step="0.01">
+      </div>
+
+      <div class="btn-row">
+        <button class="btn-calc" onclick="calcTransferencia()">Calcular</button>
+        <button class="btn-clear" onclick="limpiar('t')">Limpiar</button>
+      </div>
+      <button class="btn-registro" onclick="abrirRegistro()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        Calculadora Registro de la Propiedad
+      </button>
+
+      <div class="error-msg" id="t-error"></div>
+      <div class="result-box" id="t-result"></div>
+    </div>
+  </div>
+
+  <!-- ═══ TAB 1: DONACIÓN ═══ -->
+  <div class="panel" id="panel-1">
+    <div class="card">
+      <div class="card-title"><span>🎁</span> Donación</div>
+
+      <div class="field">
+        <label>Cuantía ($)</label>
+        <input type="number" id="d-cuantia" placeholder="0.00" step="0.01">
+      </div>
+
+      <!-- Toggle: Insinuación -->
+      <div class="toggle-row active" id="tog-insinuacion" onclick="toggleItem('tog-insinuacion','d-insinuacion')">
+        <div>
+          <div class="toggle-label">¿Incluir insinuación de donación?</div>
+          <div class="toggle-sub">Activo = suma 40% SBU con IVA · Inactivo = solo derecho notarial</div>
+        </div>
+        <div class="toggle-switch"></div>
+      </div>
+      <input type="hidden" id="d-insinuacion" value="1"><!-- 1=con insinuación -->
+
+      <!-- Toggle: Parentesco -->
+      <div class="toggle-row" id="tog-alcabala-d" onclick="toggleItem('tog-alcabala-d','d-alcabala')">
+        <div>
+          <div class="toggle-label">¿Donación entre padres e hijos?</div>
+          <div class="toggle-sub">Activo = exonera alcabala (0%)</div>
+        </div>
+        <div class="toggle-switch"></div>
+      </div>
+      <input type="hidden" id="d-alcabala" value="0">
+
+      <div class="field">
+        <label>Valor Registro de la Propiedad ($) <span style="font-weight:300;text-transform:none;font-size:11px;color:var(--ink3)">— opcional</span></label>
+        <input type="number" id="d-registro" placeholder="0.00" step="0.01">
+      </div>
+
+      <div class="btn-row">
+        <button class="btn-calc" onclick="calcDonacion()">Calcular</button>
+        <button class="btn-clear" onclick="limpiar('d')">Limpiar</button>
+      </div>
+      <button class="btn-registro" onclick="abrirRegistro()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        Calculadora Registro de la Propiedad
+      </button>
+
+      <div class="error-msg" id="d-error"></div>
+      <div class="result-box" id="d-result"></div>
+    </div>
+  </div>
+
+  <!-- ═══ TAB 2: PROMESA / CESIÓN ═══ -->
+  <div class="panel" id="panel-2">
+    <div class="card">
+      <div class="card-title"><span>📋</span> Promesa / Cesión de Derechos</div>
+
+      <div class="field">
+        <label>Tipo de Acto</label>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:2px">
+          <button id="pc-btn-promesa" class="pc-tipo active" onclick="selTipo('promesa')">Promesa de Contrato</button>
+          <button id="pc-btn-cesion"  class="pc-tipo"        onclick="selTipo('cesion')">Cesión de Derechos</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Cuantía ($)</label>
+        <input type="number" id="pc-cuantia" placeholder="0.00" step="0.01">
+      </div>
+
+      <div class="btn-row">
+        <button class="btn-calc" onclick="calcPC()">Calcular</button>
+        <button class="btn-clear" onclick="limpiar('pc')">Limpiar</button>
+      </div>
+      <button class="btn-registro" onclick="abrirRegistro()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        Calculadora Registro de la Propiedad
+      </button>
+      <div class="error-msg" id="pc-error"></div>
+      <div class="result-box" id="pc-result"></div>
+    </div>
+  </div>
+
+  <!-- ═══ TAB 3: HIPOTECA ═══ -->
+  <div class="panel" id="panel-3">
+    <div class="card">
+      <div class="card-title"><span>🏦</span> Constitución de Hipoteca</div>
+      <div class="field">
+        <label>Cuantía ($)</label>
+        <input type="number" id="h-cuantia" placeholder="0.00" step="0.01">
+      </div>
+      <div class="field">
+        <label>Valor Registro de la Propiedad ($) <span style="font-weight:300;text-transform:none;font-size:11px;color:var(--ink3)">— opcional</span></label>
+        <input type="number" id="h-registro" placeholder="0.00" step="0.01">
+      </div>
+      <div class="btn-row">
+        <button class="btn-calc" onclick="calcHipoteca()">Calcular</button>
+        <button class="btn-clear" onclick="limpiar('h')">Limpiar</button>
+      </div>
+      <button class="btn-registro" onclick="abrirRegistro()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        Calculadora Registro de la Propiedad
+      </button>
+      <div class="error-msg" id="h-error"></div>
+      <div class="result-box" id="h-result"></div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<script>
+// ═══════════════════════════════════════════════════
+// CONSTANTES (datos reales del Excel)
+// ═══════════════════════════════════════════════════
+const SBU = 482;
+const IVA = 0.15;
+const ALCABALA_PCT = 0.01;
+
+// Tabla Transferencia / Donación (mismos valores)
+const TABLA_TD = [
+  { min:0,         max:10000,      pct:0.20 },
+  { min:10000.01,  max:30000,      pct:0.35 },
+  { min:30000.01,  max:60000,      pct:0.50 },
+  { min:60000.01,  max:90000,      pct:0.80 },
+  { min:90000.01,  max:150000,     pct:1.35 },
+  { min:150000.01, max:300000,     pct:2.00 },
+  { min:300000.01, max:600000,     pct:4.00 },
+  { min:600000.01, max:1000000,    pct:5.00 },
+  { min:1000000.01,max:2000000,    pct:10.00},
+  { min:2000000.01,max:3000000,    pct:15.00},
+  { min:3000000.01,max:4000000,    pct:20.00},
+  { min:4000000.01,max:Infinity,   pct:null },
+];
+
+// Tabla Promesa / Cesión (mismos valores)
+const TABLA_PC = [
+  { min:0,         max:10000,      pct:0.15 },
+  { min:10000.01,  max:30000,      pct:0.25 },
+  { min:30000.01,  max:60000,      pct:0.35 },
+  { min:60000.01,  max:90000,      pct:0.60 },
+  { min:90000.01,  max:150000,     pct:0.90 },
+  { min:150000.01, max:300000,     pct:1.40 },
+  { min:300000.01, max:600000,     pct:2.80 },
+  { min:600000.01, max:1000000,    pct:3.50 },
+  { min:1000000.01,max:2000000,    pct:7.00 },
+  { min:2000000.01,max:3000000,    pct:10.50},
+  { min:3000000.01,max:4000000,    pct:14.00},
+  { min:4000000.01,max:Infinity,   pct:null },
+];
+
+// Tabla Hipoteca
+const TABLA_H = [
+  { min:0,         max:10000,      pct:0.13 },
+  { min:10000.01,  max:30000,      pct:0.27 },
+  { min:30000.01,  max:60000,      pct:0.36 },
+  { min:60000.01,  max:90000,      pct:0.54 },
+  { min:90000.01,  max:150000,     pct:0.72 },
+  { min:150000.01, max:300000,     pct:1.26 },
+  { min:300000.01, max:600000,     pct:1.80 },
+  { min:600000.01, max:1000000,    pct:2.25 },
+  { min:1000000.01,max:2000000,    pct:4.50 },
+  { min:2000000.01,max:3000000,    pct:6.75 },
+  { min:3000000.01,max:4000000,    pct:9.00 },
+  { min:4000000.01,max:Infinity,   pct:null },
+];
+
+// ═══════════════════════════════════════════════════
+// UTILIDADES
+// ═══════════════════════════════════════════════════
+const fmt = v => '$' + Number(v).toLocaleString('es-EC', { minimumFractionDigits:2, maximumFractionDigits:2 });
+const r2  = v => Math.round(v * 100) / 100;
+
+// Fórmula real del Excel: Arancel (con IVA incluido) = %SBU × SBU × 1.15
+// Ejemplo: tramo 2% → 2 × 482 × 1.15 = $1,108.60  ✓
+// El valor "Compraventa" del Excel YA incluye IVA — no se cobra IVA adicional.
+function obtenerArancel(cuantia, tabla) {
+  const fila = tabla.find(f => cuantia >= f.min && cuantia <= f.max);
+  if (!fila || fila.pct === null) return null;
+  const totalConIva = r2(fila.pct * SBU * 1.15);
+  const base        = r2(fila.pct * SBU);
+  const iva         = r2(totalConIva - base);
+  return { total: totalConIva, base, iva };
+}
+
+function calcularAnosPropiedad(fechaStr) {
+  if (!fechaStr) return 0;
+  const compra = new Date(fechaStr);
+  const hoy    = new Date();
+  let anos = hoy.getFullYear() - compra.getFullYear();
+  const m = hoy.getMonth() - compra.getMonth();
+  if (m < 0 || (m === 0 && hoy.getDate() < compra.getDate())) anos--;
+  return Math.max(0, anos);
+}
+
+function mostrarError(id, msg) {
+  const el = document.getElementById(id + '-error');
+  el.textContent = msg;
+  el.classList.add('show');
+}
+function ocultarError(id) {
+  document.getElementById(id + '-error').classList.remove('show');
+}
+
+function renderResultados(id, filas, total) {
+  const box = document.getElementById(id + '-result');
+  let html = '<div class="result-head">Desglose de Costos</div>';
+  filas.forEach(f => {
+    if (f.seccion) {
+      html += `<div class="result-seccion">${f.seccion}</div>`;
+      return;
+    }
+    const cls = f.sub ? ' subtotal' : '';
+    html += `<div class="result-row${cls}">
+      <span class="r-label">${f.label}</span>
+      <span class="r-val">${fmt(f.value)}</span>
+    </div>`;
+  });
+  html += `<div class="result-total">
+    <span class="rt-label">Total a Pagar</span>
+    <span class="rt-val">${fmt(total)}</span>
+  </div>`;
+  box.innerHTML = html;
+  box.classList.add('show');
+}
+
+// ═══════════════════════════════════════════════════
+// TABS
+// ═══════════════════════════════════════════════════
+function cambiarTab(i) {
+  document.querySelectorAll('.tab').forEach((t,j) => t.classList.toggle('active', i===j));
+  document.querySelectorAll('.panel').forEach((p,j) => p.classList.toggle('active', i===j));
+}
+
+// ═══════════════════════════════════════════════════
+// TOGGLES
+// ═══════════════════════════════════════════════════
+function toggleItem(rowId, hiddenId) {
+  const row = document.getElementById(rowId);
+  const hid = document.getElementById(hiddenId);
+  const isOn = row.classList.toggle('active');
+  hid.value = isOn ? '1' : '0';
+}
+
+// Mostrar años al cambiar fecha
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('t-fecha').addEventListener('change', function() {
+    const anos = calcularAnosPropiedad(this.value);
+    const hint = document.getElementById('t-anos-hint');
+    hint.innerHTML = `Años de propiedad: <span class="anos-display">${anos} año${anos===1?'':'s'}</span>`;
+  });
+});
+
+// ═══════════════════════════════════════════════════
+// TRANSFERENCIA DE DOMINIO
+// ═══════════════════════════════════════════════════
+function calcTransferencia() {
+  ocultarError('t');
+  document.getElementById('t-result').classList.remove('show');
+
+  const venta    = parseFloat(document.getElementById('t-venta').value)    || 0;
+  const compra   = parseFloat(document.getElementById('t-compra').value)   || 0;
+  const fecha    = document.getElementById('t-fecha').value;
+  const registro = parseFloat(document.getElementById('t-registro').value) || 0;
+  const VARIOS   = 60;
+
+  if (venta <= 0) { mostrarError('t', 'Ingresa un valor de venta válido.'); return; }
+
+  const ar = obtenerArancel(venta, TABLA_TD);
+  if (ar === null) { mostrarError('t', 'Cuantía fuera de rango. Para valores superiores a $4.000.000 consulte directamente en notaría.'); return; }
+
+  const alcabala     = r2(venta * ALCABALA_PCT);
+  const totalComprador = r2(ar.total + alcabala + registro + VARIOS);
+
+  // Plusvalía (solo si hay precio de compra)
+  const anos    = calcularAnosPropiedad(fecha);
+  let plusvalia = 0;
+  let tasaPlus  = 0;
+  const hayCompra = compra > 0;
+  if (hayCompra) {
+    const utilidad  = venta - compra;
+    if (utilidad > 0) {
+      const descuento = Math.min(anos * 0.005, 0.10);
+      tasaPlus  = Math.max(0, 0.10 - descuento);
+      plusvalia = r2(utilidad * tasaPlus);
+    }
+  }
+
+  const total = r2(totalComprador + plusvalia);
+
+  const filas = [
+    { seccion: '👤 COMPRADOR' },
+    { label: 'Arancel Notarial (incluido IVA)', value: ar.total },
+    { label: 'Alcabala (1%)',                   value: alcabala },
+    { label: 'Registro de la Propiedad',        value: registro },
+    { label: 'Varios',                          value: VARIOS },
+    { label: 'Total Comprador',                 value: totalComprador, sub: true },
+  ];
+
+  if (hayCompra) {
+    filas.push({ seccion: '🏷️ VENDEDOR' });
+    const utilidad = venta - compra;
+    if (utilidad > 0) {
+      filas.push({ label: `Plusvalía (${(tasaPlus*100).toFixed(1)}% · ${anos} año${anos===1?'':'s'})`, value: plusvalia });
+    } else {
+      filas.push({ label: 'Plusvalía (sin utilidad — no aplica)', value: 0 });
+    }
+  }
+
+  renderResultados('t', filas, total);
+}
+
+// ═══════════════════════════════════════════════════
+// DONACIÓN
+// ═══════════════════════════════════════════════════
+function calcDonacion() {
+  ocultarError('d');
+  document.getElementById('d-result').classList.remove('show');
+
+  const cuantia     = parseFloat(document.getElementById('d-cuantia').value)  || 0;
+  const insinuacion = document.getElementById('d-insinuacion').value === '1';
+  const exAlcab     = document.getElementById('d-alcabala').value === '1';
+  const registro    = parseFloat(document.getElementById('d-registro').value) || 0;
+
+  if (cuantia <= 0) { mostrarError('d', 'Ingresa una cuantía válida.'); return; }
+
+  // Derecho notarial: siempre, misma tabla que transferencia
+  const ar = obtenerArancel(cuantia, TABLA_TD);
+  if (ar === null) { mostrarError('d', 'Cuantía fuera de rango. Consulte en notaría.'); return; }
+
+  // Insinuación: 40% SBU con IVA incluido, solo si toggle activo
+  const insinuacionValor = r2(SBU * 0.40 * 1.15);
+
+  const alcabala = exAlcab ? 0 : r2(cuantia * ALCABALA_PCT);
+  const total    = r2(ar.total + (insinuacion ? insinuacionValor : 0) + alcabala + registro);
+
+  const filas = [
+    { label: 'Derecho Notarial (IVA incluido)', value: ar.total },
+  ];
+  if (insinuacion) {
+    filas.push({ label: 'Insinuación de Donación (IVA incluido)', value: insinuacionValor });
+  }
+  filas.push({ label: exAlcab ? 'Alcabala (exonerada — padres/hijos)' : 'Alcabala (1%)', value: alcabala });
+  if (registro > 0) filas.push({ label: 'Registro de la Propiedad', value: registro });
+
+  renderResultados('d', filas, total);
+}
+
+// ═══════════════════════════════════════════════════
+// PROMESA / CESIÓN (panel unificado)
+// ═══════════════════════════════════════════════════
+let pcTipo = 'promesa';
+
+function selTipo(tipo) {
+  pcTipo = tipo;
+  document.getElementById('pc-btn-promesa').classList.toggle('active', tipo === 'promesa');
+  document.getElementById('pc-btn-cesion').classList.toggle('active',  tipo === 'cesion');
+  document.getElementById('pc-result').classList.remove('show');
+  ocultarError('pc');
+}
+
+function calcPC() {
+  ocultarError('pc');
+  document.getElementById('pc-result').classList.remove('show');
+
+  const cuantia = parseFloat(document.getElementById('pc-cuantia').value) || 0;
+  if (cuantia <= 0) { mostrarError('pc', 'Ingresa una cuantía válida.'); return; }
+
+  const ar = obtenerArancel(cuantia, TABLA_PC);
+  if (ar === null) { mostrarError('pc', 'Cuantía fuera de rango. Consulte en notaría.'); return; }
+
+  const label = pcTipo === 'promesa' ? 'Promesa de Contrato (IVA incluido)' : 'Cesión de Derechos (IVA incluido)';
+  renderResultados('pc', [
+    { label, value: ar.total },
+  ], ar.total);
+}
+
+// ═══════════════════════════════════════════════════
+// HIPOTECA
+// ═══════════════════════════════════════════════════
+function calcHipoteca() {
+  ocultarError('h');
+  document.getElementById('h-result').classList.remove('show');
+
+  const cuantia  = parseFloat(document.getElementById('h-cuantia').value)   || 0;
+  const registro = parseFloat(document.getElementById('h-registro').value)  || 0;
+
+  if (cuantia <= 0) { mostrarError('h', 'Ingresa una cuantía válida.'); return; }
+
+  const ar = obtenerArancel(cuantia, TABLA_H);
+  if (ar === null) { mostrarError('h', 'Cuantía fuera de rango. Consulte en notaría.'); return; }
+
+  const total = r2(ar.total + registro);
+  const filas = [
+    { label: 'Arancel Notarial (IVA incluido)', value: ar.total },
+  ];
+  if (registro > 0) filas.push({ label: 'Registro de la Propiedad', value: registro });
+
+  renderResultados('h', filas, total);
+}
+
+// ═══════════════════════════════════════════════════
+// LIMPIAR
+// ═══════════════════════════════════════════════════
+function limpiar(pref) {
+  ['venta','compra','fecha','registro','cuantia'].forEach(f => {
+    const el = document.getElementById(pref+'-'+f);
+    if (el) el.value = '';
+  });
+  if (pref === 't') {
+    document.getElementById('t-anos-hint').innerHTML = '';
+  }
+  if (pref === 'd') {
+    const row1 = document.getElementById('tog-insinuacion');
+    row1.classList.add('active');
+    document.getElementById('d-insinuacion').value = '1';
+    const row2 = document.getElementById('tog-alcabala-d');
+    row2.classList.remove('active');
+    document.getElementById('d-alcabala').value = '0';
+  }
+  if (pref === 'pc') {
+    pcTipo = 'promesa';
+    document.getElementById('pc-btn-promesa').classList.add('active');
+    document.getElementById('pc-btn-cesion').classList.remove('active');
+  }
+  ocultarError(pref);
+  document.getElementById(pref+'-result').classList.remove('show');
+}
+
+// ═══════════════════════════════════════════════════
+// REGISTRO DE LA PROPIEDAD
+// ═══════════════════════════════════════════════════
+function abrirRegistro() {
+  window.open('https://www.regprocue.gob.ec/registropropiedad/content/calculadora-de-precios-0', '_blank');
+}
+</script>
+</body>
+</html>
